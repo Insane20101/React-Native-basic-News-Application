@@ -1,3 +1,10 @@
+# Step 5: Modified App Study Guide — `App.js` (Persistent State Integration)
+
+---
+
+## 📄 Complete Updated Source Code: `App.js`
+
+```javascript
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList, RefreshControl } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -193,3 +200,40 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+```
+
+---
+
+## 🔍 Line-by-Line Code Breakdown
+
+### Storage Imports (Line 6)
+* `import { loadBookmarks, saveBookmarks } from './src/utils/storage'`: Imports custom async storage helper functions.
+
+### Initializing Mount Effect (Lines 16–22)
+* `useEffect(() => { const initStorage = async () => { ... }; initStorage(); }, [])`:  
+  * Runs **once** when the app launches (`[]` empty dependency array).
+  * Reads persisted bookmarks from disk (`await loadBookmarks()`) and sets `bookmarks` state. This guarantees bookmarks persist across app restarts!
+
+### Async Persistence in Bookmark Toggle Handler (Lines 53–71)
+* `setBookmarks(updatedBookmarks)`: Updates React state immediately for instant UI feedback (optimistic UI update).
+* `await saveBookmarks(updatedBookmarks)`: Persists the updated bookmark list asynchronously to native disk storage.
+
+### Dependency Array Expansion (Lines 74–76)
+* `useEffect(() => { fetchArticles(selectedCategory); }, [selectedCategory, bookmarks]);`:
+  * Ensures that when `bookmarks` change or when `selectedCategory` switches, `fetchArticles` re-runs to sync displayed UI articles.
+
+---
+
+## 🧠 Core Concepts Taught in This File
+
+1. **Async Storage Initialization Pattern**: Reading disk storage is asynchronous. Wrapping storage initialization inside an `async` function inside `useEffect(() => {}, [])` is the standard React Native lifecycle pattern.
+2. **Optimistic State Updates**: Updating React state *before* or *parallel to* persisting to disk ensures the UI feels instant and lag-free to the mobile user.
+
+---
+
+## 🎯 Interview Q&A for This Component
+
+### Q: Why can't you pass an `async` function directly to `useEffect` like `useEffect(async () => {}, [])`?
+**Answer:** `useEffect` expects its callback function to return either `undefined` or a **cleanup function** (to cancel timers/subscriptions). An `async` function implicitly returns a **Promise**, which violates React's effect contract and breaks component lifecycle cleanup. To use async logic inside `useEffect`, you must define an internal async function and invoke it: `useEffect(() => { const fetchData = async () => { ... }; fetchData(); }, [])`.
+
+---
