@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Step study guide files (kept locally for studying, excluded from GitHub)
+STEP_*.md
+
